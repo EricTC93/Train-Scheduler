@@ -24,6 +24,11 @@ var trainList = [{
 	frequency: 7
 }];
 
+var date = new Date();
+var currentHr = date.getHours();
+var currentMin = date.getMinutes();
+
+
 database.ref().on("value",function(snap) {
 
 	if (snap.child("trainStorage").exists()) {
@@ -115,6 +120,10 @@ function displayTime(hr,min) {
 	}
 
 	return hrDisplay + ":" + minDisplay + " " + period;
+}
+
+function nextArrival(hr,min,freq) {
+	
 }
 
 // console.log(displayTime(23,30));
