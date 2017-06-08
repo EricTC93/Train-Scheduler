@@ -144,6 +144,16 @@ function nextArrival(hr,min,freq) {
 	// 	return nextArrival(newHr,newMin,freq); 
 	// }
 
+	var a = hr*60 + min;
+	var b = currentHr*60 + currentMin;
+
+	if (a-b > freq) {
+		b = currentHr*60*24 + currentMin;
+	}
+
+	if (a-b <= freq && a-b >= 0) {}
+
+	else if (a-b < 0) {}
 }
 
 // console.log(displayTime(23,30));
