@@ -10,12 +10,20 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
-var trainName = "Test";
-var destination = "test";
-var firstTrain = "00:00";
-var frequency = 10;
+// var firstTrain = {
+// 	name: "First Train",
+// 	destination: "home",
+// 	firstTrain: "12:00",
+// 	frequency: 7
+// };
 
-var trainList = [];
+var trainList = [{
+	name: "First Train",
+	destination: "home",
+	firstTrain: "12:00",
+	frequency: 7
+}];
+
 
 // var ref = new Firebase(URL_TO_DATA);
 // var newChildRef = ref.push();
@@ -23,14 +31,33 @@ var trainList = [];
 // 	trainName: trainName
 // });
 
+database.ref().on("value",function(snap) {
+
+	if (snap.child("trainStorage").exists()) {
+		console.log(snap.val().trainStorage);
+		trainList = snap.val().trainStorage;
+	}
+
+	else {
+
+		database.ref().set({
+			trainStorage: trainList
+		});
+	}
+
+}, function(errorObject) {
+	console.log("There was an error: " + errorObject.code);
+});
+
+
 $("#submit").on("click",function() {
 	event.preventDefault();
 
 	trainList.push({
-		name: $("#trainName").text(),
-		destination: $("#destination").text(),
-		firstTrain: $("#firstTrain").text(),
-		frequency: $("#frequency").text()
+		name: $("#trainName").val(),
+		destination: $("#destination").val(),
+		firstTrain: $("#firstTrain").val(),
+		frequency: $("#frequency").val()
 	});
 
 	console.log(trainList);
