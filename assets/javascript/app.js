@@ -34,4 +34,8 @@ $("#submit").on("click",function() {
 	});
 
 	console.log(trainList);
+
+	database.ref().set({
+		trainStorage: trainList
+	});
 });
