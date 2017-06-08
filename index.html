@@ -23,14 +23,16 @@
 				<h1 class="panel-title"> Current Schedule </h1>
 			</div>
 
-			<table class="table" id="trainTable">
-				<tr>
-					<th>Train Name</th>
-					<th>Destination</th>
-					<th>Frequency (min)</th>
-					<th>Next Arrival</th>
-					<th>Minutes Away</th>
-				</tr>
+			<table class="table">
+				<tbody id="trainTable">
+					<tr>
+						<th>Train Name</th>
+						<th>Destination</th>
+						<th>Frequency (min)</th>
+						<th>Next Arrival</th>
+						<th>Minutes Away</th>
+					</tr>
+				</tbody>
 			</table>
 
 		</div>
@@ -56,9 +58,9 @@
 					<div class="form-group form-inline">
 						<label for="firstTrain">First Train Time (military time):</label>
 						<label for="HH">HH</label>
-						<input class="form-control" id="firstTrainHours" type="number">
+						<input class="form-control" id="firstTrainHours" type="text">
 						<label for="mm">mm</label>
-						<input class="form-control" id="firstTrainMinutes" type="number">
+						<input class="form-control" id="firstTrainMinutes" type="text">
 					</div>
 
 					<div class="form-group">

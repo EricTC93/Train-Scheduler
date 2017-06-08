@@ -29,6 +29,7 @@ database.ref().on("value",function(snap) {
 	if (snap.child("trainStorage").exists()) {
 		console.log(snap.val().trainStorage);
 		trainList = snap.val().trainStorage;
+		displayTrains();
 	}
 
 	else {
@@ -46,27 +47,49 @@ database.ref().on("value",function(snap) {
 $("#submit").on("click",function() {
 	event.preventDefault();
 
-	trainList.push({
-		name: $("#trainName").val(),
-		destination: $("#destination").val(),
-		firstTrain: { 
-			hours: $("#firstTrainHours").val(), 
-			minutes: $("#firstTrainMinutes").val()
-		},
-		frequency: $("#frequency").val()
-	});
+	// if (parseInt($("#firstTrainHours").val()) != NaN) {}
 
-	console.log(trainList);
+	// 	console.log(parseInt($("#firstTrainHours").val()));
 
-	database.ref().set({
-		trainStorage: trainList
-	});
+		trainList.push({
+			name: $("#trainName").val(),
+			destination: $("#destination").val(),
+			firstTrain: { 
+				hours: $("#firstTrainHours").val(), 
+				minutes: $("#firstTrainMinutes").val()
+			},
+			frequency: $("#frequency").val()
+		});
 
-	displayTrain();
+		console.log(trainList);
+
+		database.ref().set({
+			trainStorage: trainList
+		});
+
+		displayTrains();
+
 });
 
-function displayTrain() {
+function displayTrains() {
 	$("#trainTable").empty();
+	var tableHead = $("<tr>");
+	tableHead.append($("<th>").html("Train Name"))
+		.append($("<th>").html("Destination"))
+		.append($("<th>").html("Frequency (min)"))
+		.append($("<th>").html("Next Arrival"))
+		.append($("<th>").html("Minutes Away"));
+	$("#trainTable").append(tableHead);
+
+	for (var i = 0; i < trainList.length; i++) {
+		var newTableRow = $("<tr>");
+		newTableRow.append($("<td>").html(trainList[i].name))
+			.append($("<td>").html(trainList[i].destination))
+			.append($("<td>").html(trainList[i].frequency))
+			.append($("<td>").html(""))
+			.append($("<td>").html(""));
+		$("#trainTable").append(newTableRow);
+	}
 }
 
 function displayTime(hr,min) {
@@ -74,7 +97,7 @@ function displayTime(hr,min) {
 	var minDisplay = parseInt(min);
 	var period = "AM";
 
-	if (hrDisplay === 0) {
+	if (hrDisplay === 0 || hrDisplay === 24) {
 		hrDisplay = 12;
 	}
 
@@ -87,7 +110,13 @@ function displayTime(hr,min) {
 		period = "PM";
 	}
 
+	else if (hrDisplay > 24 || hrDisplay < 0 ) {
+		hrDisplay = 12;
+	}
+
 	return hrDisplay + ":" + minDisplay + " " + period;
 }
 
 // console.log(displayTime(23,30));
+
+// displayTrains();
