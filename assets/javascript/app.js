@@ -123,7 +123,27 @@ function displayTime(hr,min) {
 }
 
 function nextArrival(hr,min,freq) {
-	
+	// var a = hr*60 + min;
+	// var b = currentHr*60 + currentMin;
+
+	// if (b-a <= freq && b-a >= 0) {
+	// 	return b-a;
+	// }
+
+	// else {
+	// 	var newHr = hr;
+	// 	var newMin = min + freq;
+	// 	while (newMin >= 60) {
+	// 		newMin-=60;
+	// 		newHr++
+	// 	}
+	// 	while (newHr >= 24) {
+	// 		newHr-=24;
+	// 	}
+
+	// 	return nextArrival(newHr,newMin,freq); 
+	// }
+
 }
 
 // console.log(displayTime(23,30));
