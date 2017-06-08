@@ -20,16 +20,9 @@ var database = firebase.database();
 var trainList = [{
 	name: "First Train",
 	destination: "home",
-	firstTrain: "12:00",
+	firstTrain: { hours: "12", minutes: "00" },
 	frequency: 7
 }];
-
-
-// var ref = new Firebase(URL_TO_DATA);
-// var newChildRef = ref.push();
-// newChildRef.set({
-// 	trainName: trainName
-// });
 
 database.ref().on("value",function(snap) {
 
@@ -56,7 +49,10 @@ $("#submit").on("click",function() {
 	trainList.push({
 		name: $("#trainName").val(),
 		destination: $("#destination").val(),
-		firstTrain: $("#firstTrain").val(),
+		firstTrain: { 
+			hours: $("#firstTrainHours").val(), 
+			minutes: $("#firstTrainMinutes").val()
+		},
 		frequency: $("#frequency").val()
 	});
 
@@ -65,4 +61,10 @@ $("#submit").on("click",function() {
 	database.ref().set({
 		trainStorage: trainList
 	});
+
+	displayTrain();
 });
+
+function displayTrain() {
+	$("#trainTable").empty();
+} 
