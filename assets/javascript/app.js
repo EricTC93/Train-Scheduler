@@ -67,4 +67,27 @@ $("#submit").on("click",function() {
 
 function displayTrain() {
 	$("#trainTable").empty();
-} 
+}
+
+function displayTime(hr,min) {
+	var hrDisplay = parseInt(hr);
+	var minDisplay = parseInt(min);
+	var period = "AM";
+
+	if (hrDisplay === 0) {
+		hrDisplay = 12;
+	}
+
+	else if (hrDisplay === 12) {
+		period = "PM";
+	}
+
+	else if (hrDisplay > 12) {
+		hrDisplay-=12;
+		period = "PM";
+	}
+
+	return hrDisplay + ":" + minDisplay + " " + period;
+}
+
+// console.log(displayTime(23,30));
