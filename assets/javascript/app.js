@@ -49,7 +49,7 @@ database.ref().on("value",function(snap) {
 });
 
 
-$("#submit").on("click",function() {
+$("#submit").on("click",function(event) {
 	event.preventDefault();
 
 	// if (parseInt($("#firstTrainHours").val()) != NaN) {}
@@ -57,13 +57,13 @@ $("#submit").on("click",function() {
 	// 	console.log(parseInt($("#firstTrainHours").val()));
 
 		trainList.push({
-			name: $("#trainName").val(),
-			destination: $("#destination").val(),
+			name: $("#trainName").val().trim(),
+			destination: $("#destination").val().trim(),
 			firstTrain: { 
-				hours: $("#firstTrainHours").val(), 
-				minutes: $("#firstTrainMinutes").val()
+				hours: $("#firstTrainHours").val().trim(), 
+				minutes: $("#firstTrainMinutes").val().trim()
 			},
-			frequency: $("#frequency").val()
+			frequency: $("#frequency").val().trim()
 		});
 
 		console.log(trainList);
@@ -102,6 +102,15 @@ function displayTime(hr,min) {
 	var minDisplay = parseInt(min);
 	var period = "AM";
 
+	if (minDisplay >= 60) {
+		minDisplay-=60;
+		hrDisplay++;
+	}
+
+	if (hrDisplay > 24 || hrDisplay < 0 ) {
+		hrDisplay = hrDisplay%24;
+	}
+
 	if (hrDisplay === 0 || hrDisplay === 24) {
 		hrDisplay = 12;
 	}
@@ -115,8 +124,8 @@ function displayTime(hr,min) {
 		period = "PM";
 	}
 
-	else if (hrDisplay > 24 || hrDisplay < 0 ) {
-		hrDisplay = 12;
+	if (minDisplay < 10) {
+		minDisplay = "0" + minDisplay;
 	}
 
 	return hrDisplay + ":" + minDisplay + " " + period;
@@ -144,18 +153,31 @@ function nextArrival(hr,min,freq) {
 	// 	return nextArrival(newHr,newMin,freq); 
 	// }
 
+	console.log("nextArrival()");
+
 	var a = hr*60 + min;
 	var b = currentHr*60 + currentMin;
 
-	if (a-b > freq) {
-		b = currentHr*60*24 + currentMin;
+	// if (a-b > freq) {
+	// 	b = currentHr*60*24 + currentMin;
+	// }
+
+	if (a-b <= freq && a-b >= 0) {
+		return (a-b);
 	}
 
-	if (a-b <= freq && a-b >= 0) {}
+	else if (a-b < 0) {
+		var newMin = min + freq;
+		return nextArrival(hr,newMin,freq);
+	}
 
-	else if (a-b < 0) {}
+	else {
+		return (a-b);
+	}
 }
 
-// console.log(displayTime(23,30));
+// console.log(displayTime(26,65));
 
 // displayTrains();
+
+console.log(nextArrival(23,17,10));
