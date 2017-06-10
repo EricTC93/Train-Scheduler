@@ -56,9 +56,6 @@ $("#submit").on("click",function(event) {
 		return;
 	}
 
-	// var trainStartHr = parseInt($("#firstTrainHours").val().trim());
-	// var trainStartMin = parseInt($("#firstTrainMinutes").val().trim());
-
 	database.ref().push({
 		name: $("#trainName").val().trim(),
 		destination: $("#destination").val().trim(),
@@ -165,5 +162,6 @@ function arrivalTime(min) {
 	var hrDisplay = currentHr;
 	var minDisplay = currentMin + min;
 
-	return displayTime(hrDisplay,minDisplay); 
+	// return displayTime(hrDisplay,minDisplay);
+	return moment().add(min,"minutes").format("hh:mm A");
 }
