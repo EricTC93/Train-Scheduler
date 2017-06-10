@@ -39,6 +39,8 @@ $("#submit").on("click",function(event) {
 		$("#frequency").val() === "" ) {
 
 		alert("All fields are required");
+		$("#error").html("All fields are required");
+		$("#error").show();
 		return;
 	}
 
@@ -51,13 +53,19 @@ $("#submit").on("click",function(event) {
 
 	if (moment(startTimeString,"HH:mm").isValid() === false) {
 		alert("Start time is invalid");
+		$("#error").html("Start time is invalid");
+		$("#error").show();
 		return;
 	}
 
 	if (trainFreq <= 0 || Number.isInteger(trainFreq) === false) {
 		alert("Frequency is invalid");
+		$("#error").html("Frequency is invalid");
+		$("#error").show();
 		return;
 	}
+
+	$("#error").hide();
 
 	database.ref().push({
 		name: $("#trainName").val().trim(),
