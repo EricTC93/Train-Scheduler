@@ -12,14 +12,13 @@ firebase.initializeApp(config);
 var database = firebase.database();
 
 // Declaring Variables
-
 var date = new Date();
 var currentHr = date.getHours();
 var currentMin = date.getMinutes();
 
-var firstDay = "9";
-var firstMonth = "June";
-var firstYear = "2017";
+var startDay = "9";
+var startMonth = "June";
+var startYear = "2017";
 
 // Runs when a value has been changed
 database.ref().on("value",function(snap) {
@@ -35,8 +34,8 @@ $("#submit").on("click",function(event) {
 	// Rejects submit if a form is left blank
 	if ($("#trainName").val() === "" || 
 		$("#destination").val() === "" || 
-		$("#hours").val() === "" || 
-		$("#minutes").val() === "" || 
+		$("#firstTrainHours").val() === "" || 
+		$("#firstTrainMinutes").val() === "" || 
 		$("#frequency").val() === "" ) {
 
 		alert("All fields are required");
@@ -70,12 +69,16 @@ $("#submit").on("click",function(event) {
 		frequency: trainFreq
 	});
 
+	$("#trainName").val("");  
+	$("#destination").val("");  
+	$("#firstTrainHours").val("");  
+	$("#firstTrainMinutes").val("");  
+	$("#frequency").val(""); 
+
 });
 
 // Displays all the trains in the train array
 database.ref().on("child_added", function(childSnapshot) {
-
-	// console.log(childSnapshot);
 
 	var minAway = minutesAway(childSnapshot.val().firstTrain.hours,
 			childSnapshot.val().firstTrain.minutes,
@@ -97,96 +100,21 @@ database.ref().on("child_added", function(childSnapshot) {
 
 });
 
-
-// // Uses hours and minutes to display in 12hr clock format
-// function displayTime(hr,min) {
-// 	var hrDisplay = parseInt(hr);
-// 	var minDisplay = parseInt(min);
-// 	var period = "AM";
-
-// 	while (minDisplay >= 60) {
-// 		minDisplay-=60;
-// 		hrDisplay++;
-// 	}
-
-// 	if (hrDisplay > 24 || hrDisplay < 0 ) {
-// 		hrDisplay = hrDisplay%24;
-// 	}
-
-// 	if (hrDisplay === 0 || hrDisplay === 24) {
-// 		hrDisplay = 12;
-// 	}
-
-// 	else if (hrDisplay === 12) {
-// 		period = "PM";
-// 	}
-
-// 	else if (hrDisplay > 12) {
-// 		hrDisplay-=12;
-// 		period = "PM";
-// 	}
-
-// 	if (minDisplay < 10) {
-// 		minDisplay = "0" + minDisplay;
-// 	}
-
-// 	return hrDisplay + ":" + minDisplay + " " + period;
-// }
-
 // Calculates the minutes away from the next train
-// Note: If train start time is after the current time
-// it will treat it a if the train started the day before
+// Note: Train starts running on a seperate date in the past
 function minutesAway(hr,min,freq) {
 
-	// var startTimeString = hr + ":" + min;
-
-	// console.log(startTimeString);
-
-	// var diff = moment().diff(startTimeString,"minutes");
-
-	// console.log(diff);
-
-	var startTime = moment().year(firstYear)
-		.month(firstMonth)
-		.date(firstDay)
+	var startTime = moment().year(startYear)
+		.month(startMonth)
+		.date(startDay)
 		.hour(hr)
 		.minutes(min);
 	var currentTime = moment();
 	var diff = currentTime.diff(startTime,"minutes");
 
-	// if (diff < 0) {
-	// 	startTime = startTime.subtract(1,"days");
-	// 	var diff = currentTime.diff(startTime,"minutes");
-	// }
-	console.log(startTime.format());
-	console.log(diff);
+	var remainder = diff%freq;
 
-	var rem = diff%freq;
-
-
-	// var startTimeMin = hr*60 + min;
-	// var currentTimeMin = currentHr*60 + currentMin;
-
-	// var newMin;
-
-	// if (startTimeMin-currentTimeMin > freq) {
-	// 	startTimeMin = startTimeMin - 1440;
-	// }
-
-	// if (startTimeMin-currentTimeMin <= freq && startTimeMin-currentTimeMin >= 0) {
-	// 	return (startTimeMin-currentTimeMin);
-	// }
-
-	// else if (startTimeMin-currentTimeMin < 0) {
-	// 	newMin = min + freq;
-	// 	return minutesAway(hr,newMin,freq);
-	// }
-
-	// else {
-	// 	return (startTimeMin-currentTimeMin);
-	// }
-
-	return (freq - rem);
+	return (freq - remainder);
 }
 
 // Displays the arival time of the train based on the min away from the current time
@@ -194,6 +122,5 @@ function arrivalTime(min) {
 	var hrDisplay = currentHr;
 	var minDisplay = currentMin + min;
 
-	// return displayTime(hrDisplay,minDisplay);
 	return moment().add(min,"minutes").format("hh:mm A");
 }
