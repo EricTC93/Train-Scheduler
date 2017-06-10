@@ -39,6 +39,19 @@ $("#submit").on("click",function(event) {
 		return;
 	}
 
+	var startTimeString = $("#firstTrainHours").val().trim() + ":" 
+	+ $("#firstTrainMinutes").val().trim();
+
+	if (moment(startTimeString,"HH:mm").isValid() === false) {
+		alert("Start time is invalid");
+		return;
+	}
+
+	if (parseInt($("#frequency").val().trim()) <= 0) {
+		alert("Frequency is invalid");
+		return;
+	}
+
 	// var trainStartHr = parseInt($("#firstTrainHours").val().trim());
 	// var trainStartMin = parseInt($("#firstTrainMinutes").val().trim());
 
