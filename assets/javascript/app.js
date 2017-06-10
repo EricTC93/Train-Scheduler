@@ -39,15 +39,19 @@ $("#submit").on("click",function(event) {
 		return;
 	}
 
-	var startTimeString = $("#firstTrainHours").val().trim() + ":" 
-	+ $("#firstTrainMinutes").val().trim();
+	var firstTrainHr = parseInt($("#firstTrainHours").val().trim());
+	var firstTrainMin = parseInt($("#firstTrainMinutes").val().trim());
+	var trainFreq = parseInt($("#frequency").val().trim());
+
+	var startTimeString = firstTrainHr + ":" 
+	+ firstTrainMin;
 
 	if (moment(startTimeString,"HH:mm").isValid() === false) {
 		alert("Start time is invalid");
 		return;
 	}
 
-	if (parseInt($("#frequency").val().trim()) <= 0) {
+	if (trainFreq <= 0 || Number.isInteger(trainFreq) === false) {
 		alert("Frequency is invalid");
 		return;
 	}
@@ -59,10 +63,10 @@ $("#submit").on("click",function(event) {
 		name: $("#trainName").val().trim(),
 		destination: $("#destination").val().trim(),
 		firstTrain: { 
-			hours: parseInt($("#firstTrainHours").val().trim()), 
-			minutes: parseInt($("#firstTrainMinutes").val().trim())
+			hours: firstTrainHr, 
+			minutes: firstTrainMin
 		},
-		frequency: parseInt($("#frequency").val().trim())
+		frequency: trainFreq
 	});
 
 });
