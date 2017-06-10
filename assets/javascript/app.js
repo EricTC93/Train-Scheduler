@@ -20,7 +20,7 @@ var database = firebase.database();
 var trainList = [{
 	name: "First Train",
 	destination: "home",
-	firstTrain: { hours: "12", minutes: "00" },
+	firstTrain: { hours: 12, minutes: 0 },
 	frequency: 7
 }];
 
@@ -60,10 +60,10 @@ $("#submit").on("click",function(event) {
 			name: $("#trainName").val().trim(),
 			destination: $("#destination").val().trim(),
 			firstTrain: { 
-				hours: $("#firstTrainHours").val().trim(), 
-				minutes: $("#firstTrainMinutes").val().trim()
+				hours: parseInt($("#firstTrainHours").val().trim()), 
+				minutes: parseInt($("#firstTrainMinutes").val().trim())
 			},
-			frequency: $("#frequency").val().trim()
+			frequency: parseInt($("#frequency").val().trim())
 		});
 
 		console.log(trainList);
@@ -87,12 +87,23 @@ function displayTrains() {
 	$("#trainTable").append(tableHead);
 
 	for (var i = 0; i < trainList.length; i++) {
+
+		var minAway = minutesAway(trainList[i].firstTrain.hours,
+				trainList[i].firstTrain.minutes,
+				trainList[i].frequency);
+
+		var nextArivl = arrivalTime(minAway);
+
+		if (minAway === 0) {
+			minAway = "Now";
+		}
+
 		var newTableRow = $("<tr>");
 		newTableRow.append($("<td>").html(trainList[i].name))
 			.append($("<td>").html(trainList[i].destination))
 			.append($("<td>").html(trainList[i].frequency))
-			.append($("<td>").html(""))
-			.append($("<td>").html(""));
+			.append($("<td>").html(nextArivl))
+			.append($("<td>").html(minAway));
 		$("#trainTable").append(newTableRow);
 	}
 }
@@ -102,7 +113,7 @@ function displayTime(hr,min) {
 	var minDisplay = parseInt(min);
 	var period = "AM";
 
-	if (minDisplay >= 60) {
+	while (minDisplay >= 60) {
 		minDisplay-=60;
 		hrDisplay++;
 	}
@@ -131,7 +142,7 @@ function displayTime(hr,min) {
 	return hrDisplay + ":" + minDisplay + " " + period;
 }
 
-function nextArrival(hr,min,freq) {
+function minutesAway(hr,min,freq) {
 	// var a = hr*60 + min;
 	// var b = currentHr*60 + currentMin;
 
@@ -150,25 +161,36 @@ function nextArrival(hr,min,freq) {
 	// 		newHr-=24;
 	// 	}
 
-	// 	return nextArrival(newHr,newMin,freq); 
+	// 	return minutesAway(newHr,newMin,freq); 
 	// }
 
-	console.log("nextArrival()");
+	// console.log("hr: " + hr);
+	// console.log("min: " + min);
+	// console.log("freq: " + freq);
 
 	var a = hr*60 + min;
 	var b = currentHr*60 + currentMin;
 
+	// console.log(a);
+	// console.log(b);
+
 	// if (a-b > freq) {
 	// 	b = currentHr*60*24 + currentMin;
 	// }
+
+	var newMin;
+
+	if (a-b > freq) {
+		a = a - 1440;
+	}
 
 	if (a-b <= freq && a-b >= 0) {
 		return (a-b);
 	}
 
 	else if (a-b < 0) {
-		var newMin = min + freq;
-		return nextArrival(hr,newMin,freq);
+		newMin = min + freq;
+		return minutesAway(hr,newMin,freq);
 	}
 
 	else {
@@ -180,4 +202,13 @@ function nextArrival(hr,min,freq) {
 
 // displayTrains();
 
-console.log(nextArrival(23,17,10));
+// console.log(minutesAway(23,17,10));
+
+function arrivalTime(min) {
+	var hrDisplay = currentHr;
+	var minDisplay = currentMin + min;
+
+	return displayTime(hrDisplay,minDisplay); 
+}
+
+// console.log(arrivalTime(minutesAway(19,14,15)));
