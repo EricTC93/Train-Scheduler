@@ -1,3 +1,4 @@
+// Initialize Firebase
 var config = {
     apiKey: "AIzaSyDPAkRq2y-F_EbAhKtvraZ64gzrzRczBcg",
     authDomain: "train-scheduler-firebase.firebaseapp.com",
@@ -10,13 +11,7 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 
-// var firstTrain = {
-// 	name: "First Train",
-// 	destination: "home",
-// 	firstTrain: "12:00",
-// 	frequency: 7
-// };
-
+// Declaring Variables
 var trainList = [{
 	name: "First Train",
 	destination: "home",
@@ -28,7 +23,7 @@ var date = new Date();
 var currentHr = date.getHours();
 var currentMin = date.getMinutes();
 
-
+// Runs when a value has been changed
 database.ref().on("value",function(snap) {
 
 	if (snap.child("trainStorage").exists()) {
@@ -48,36 +43,50 @@ database.ref().on("value",function(snap) {
 	console.log("There was an error: " + errorObject.code);
 });
 
-
+// Adds train when user presses the submit button
 $("#submit").on("click",function(event) {
 	event.preventDefault();
 
-	// if (parseInt($("#firstTrainHours").val()) != NaN) {}
+	// Rejects submit if a form is left blank
+	if ($("#trainName").val() === "" || 
+		$("#destination").val() === "" || 
+		$("#hours").val() === "" || 
+		$("#minutes").val() === "" || 
+		$("#frequency").val() === "" ) {
 
-	// 	console.log(parseInt($("#firstTrainHours").val()));
+		alert("All fields are required");
+		return;
+	}
 
-		trainList.push({
-			name: $("#trainName").val().trim(),
-			destination: $("#destination").val().trim(),
-			firstTrain: { 
-				hours: parseInt($("#firstTrainHours").val().trim()), 
-				minutes: parseInt($("#firstTrainMinutes").val().trim())
-			},
-			frequency: parseInt($("#frequency").val().trim())
-		});
+	// var trainStartHr = parseInt($("#firstTrainHours").val().trim());
+	// var trainStartMin = parseInt($("#firstTrainMinutes").val().trim());
 
-		console.log(trainList);
+	trainList.push({
+		name: $("#trainName").val().trim(),
+		destination: $("#destination").val().trim(),
+		firstTrain: { 
+			hours: parseInt($("#firstTrainHours").val().trim()), 
+			minutes: parseInt($("#firstTrainMinutes").val().trim())
+		},
+		frequency: parseInt($("#frequency").val().trim())
+	});
 
-		database.ref().set({
-			trainStorage: trainList
-		});
+	console.log(trainList);
 
-		displayTrains();
+	database.ref().set({
+		trainStorage: trainList
+	});
+
+	displayTrains();
 
 });
 
+// Displays all the trains in the train array
 function displayTrains() {
+	// Empties current table
 	$("#trainTable").empty();
+
+	// Creates table header
 	var tableHead = $("<tr>");
 	tableHead.append($("<th>").html("Train Name"))
 		.append($("<th>").html("Destination"))
@@ -86,6 +95,7 @@ function displayTrains() {
 		.append($("<th>").html("Minutes Away"));
 	$("#trainTable").append(tableHead);
 
+	// Appends table data for each train
 	for (var i = 0; i < trainList.length; i++) {
 
 		var minAway = minutesAway(trainList[i].firstTrain.hours,
@@ -108,6 +118,7 @@ function displayTrains() {
 	}
 }
 
+// Uses hours and minutes to display in 12hr clock format
 function displayTime(hr,min) {
 	var hrDisplay = parseInt(hr);
 	var minDisplay = parseInt(min);
@@ -142,73 +153,38 @@ function displayTime(hr,min) {
 	return hrDisplay + ":" + minDisplay + " " + period;
 }
 
+// Calculates the minutes away from the next train
+// Note: If train start time is after the current time
+// it will treat it a if the train started the day before
 function minutesAway(hr,min,freq) {
-	// var a = hr*60 + min;
-	// var b = currentHr*60 + currentMin;
 
-	// if (b-a <= freq && b-a >= 0) {
-	// 	return b-a;
-	// }
-
-	// else {
-	// 	var newHr = hr;
-	// 	var newMin = min + freq;
-	// 	while (newMin >= 60) {
-	// 		newMin-=60;
-	// 		newHr++
-	// 	}
-	// 	while (newHr >= 24) {
-	// 		newHr-=24;
-	// 	}
-
-	// 	return minutesAway(newHr,newMin,freq); 
-	// }
-
-	// console.log("hr: " + hr);
-	// console.log("min: " + min);
-	// console.log("freq: " + freq);
-
-	var a = hr*60 + min;
-	var b = currentHr*60 + currentMin;
-
-	// console.log(a);
-	// console.log(b);
-
-	// if (a-b > freq) {
-	// 	b = currentHr*60*24 + currentMin;
-	// }
+	var startTimeMin = hr*60 + min;
+	var currentTimeMin = currentHr*60 + currentMin;
 
 	var newMin;
 
-	if (a-b > freq) {
-		a = a - 1440;
+	if (startTimeMin-currentTimeMin > freq) {
+		startTimeMin = startTimeMin - 1440;
 	}
 
-	if (a-b <= freq && a-b >= 0) {
-		return (a-b);
+	if (startTimeMin-currentTimeMin <= freq && startTimeMin-currentTimeMin >= 0) {
+		return (startTimeMin-currentTimeMin);
 	}
 
-	else if (a-b < 0) {
+	else if (startTimeMin-currentTimeMin < 0) {
 		newMin = min + freq;
 		return minutesAway(hr,newMin,freq);
 	}
 
 	else {
-		return (a-b);
+		return (startTimeMin-currentTimeMin);
 	}
 }
 
-// console.log(displayTime(26,65));
-
-// displayTrains();
-
-// console.log(minutesAway(23,17,10));
-
+// Displays the arival time of the train based on the min away from the current time
 function arrivalTime(min) {
 	var hrDisplay = currentHr;
 	var minDisplay = currentMin + min;
 
 	return displayTime(hrDisplay,minDisplay); 
 }
-
-// console.log(arrivalTime(minutesAway(19,14,15)));
