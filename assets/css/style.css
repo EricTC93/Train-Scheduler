@@ -1,3 +1,13 @@
+body {
+	background-image: url(../images/steamTrainBackground.png);
+	background-size: cover;
+}
+
+.jumbotron, .panel > .panel-heading-custom {
+	background-image: none;
+	background-color: #ccffff;
+}
+
 #error {
 	display: none;
 	color: red;
