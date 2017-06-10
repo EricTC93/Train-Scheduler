@@ -12,12 +12,6 @@ firebase.initializeApp(config);
 var database = firebase.database();
 
 // Declaring Variables
-var trainList = [{
-	name: "First Train",
-	destination: "home",
-	firstTrain: { hours: 12, minutes: 0 },
-	frequency: 7
-}];
 
 var date = new Date();
 var currentHr = date.getHours();
@@ -25,19 +19,6 @@ var currentMin = date.getMinutes();
 
 // Runs when a value has been changed
 database.ref().on("value",function(snap) {
-
-	if (snap.child("trainStorage").exists()) {
-		console.log(snap.val().trainStorage);
-		trainList = snap.val().trainStorage;
-		displayTrains();
-	}
-
-	else {
-
-		database.ref().set({
-			trainStorage: trainList
-		});
-	}
 
 }, function(errorObject) {
 	console.log("There was an error: " + errorObject.code);
@@ -61,7 +42,7 @@ $("#submit").on("click",function(event) {
 	// var trainStartHr = parseInt($("#firstTrainHours").val().trim());
 	// var trainStartMin = parseInt($("#firstTrainMinutes").val().trim());
 
-	trainList.push({
+	database.ref().push({
 		name: $("#trainName").val().trim(),
 		destination: $("#destination").val().trim(),
 		firstTrain: { 
@@ -71,52 +52,33 @@ $("#submit").on("click",function(event) {
 		frequency: parseInt($("#frequency").val().trim())
 	});
 
-	console.log(trainList);
-
-	database.ref().set({
-		trainStorage: trainList
-	});
-
-	displayTrains();
-
 });
 
 // Displays all the trains in the train array
-function displayTrains() {
-	// Empties current table
-	$("#trainTable").empty();
+database.ref().on("child_added", function(childSnapshot) {
 
-	// Creates table header
-	var tableHead = $("<tr>");
-	tableHead.append($("<th>").html("Train Name"))
-		.append($("<th>").html("Destination"))
-		.append($("<th>").html("Frequency (min)"))
-		.append($("<th>").html("Next Arrival"))
-		.append($("<th>").html("Minutes Away"));
-	$("#trainTable").append(tableHead);
+	console.log(childSnapshot);
 
-	// Appends table data for each train
-	for (var i = 0; i < trainList.length; i++) {
+	var minAway = minutesAway(childSnapshot.val().firstTrain.hours,
+			childSnapshot.val().firstTrain.minutes,
+			childSnapshot.val().frequency);
 
-		var minAway = minutesAway(trainList[i].firstTrain.hours,
-				trainList[i].firstTrain.minutes,
-				trainList[i].frequency);
+	var nextArivl = arrivalTime(minAway);
 
-		var nextArivl = arrivalTime(minAway);
-
-		if (minAway === 0) {
-			minAway = "Now";
-		}
-
-		var newTableRow = $("<tr>");
-		newTableRow.append($("<td>").html(trainList[i].name))
-			.append($("<td>").html(trainList[i].destination))
-			.append($("<td>").html(trainList[i].frequency))
-			.append($("<td>").html(nextArivl))
-			.append($("<td>").html(minAway));
-		$("#trainTable").append(newTableRow);
+	if (minAway === 0) {
+		minAway = "Now";
 	}
-}
+
+	var newTableRow = $("<tr>");
+	newTableRow.append($("<td>").html(childSnapshot.val().name))
+		.append($("<td>").html(childSnapshot.val().destination))
+		.append($("<td>").html(childSnapshot.val().frequency))
+		.append($("<td>").html(nextArivl))
+		.append($("<td>").html(minAway));
+	$("#trainTable").append(newTableRow);
+
+});
+
 
 // Uses hours and minutes to display in 12hr clock format
 function displayTime(hr,min) {
