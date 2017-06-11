@@ -16,16 +16,10 @@ var date = new Date();
 var currentHr = date.getHours();
 var currentMin = date.getMinutes();
 
+// Beginning Date
 var startDay = "9";
 var startMonth = "June";
 var startYear = "2017";
-
-// Runs when a value has been changed
-database.ref().on("value",function(snap) {
-
-}, function(errorObject) {
-	console.log("There was an error: " + errorObject.code);
-});
 
 // Adds train when user presses the submit button
 $("#submit").on("click",function(event) {
@@ -50,12 +44,14 @@ $("#submit").on("click",function(event) {
 	var startTimeString = firstTrainHr + ":" 
 	+ firstTrainMin;
 
+	// Time validation
 	if (moment(startTimeString,"HH:mm").isValid() === false) {
 		$("#error").html("Start time is invalid");
 		$("#error").show();
 		return;
 	}
 
+	// Frequency validation
 	if (trainFreq <= 0 || Number.isInteger(trainFreq) === false) {
 		$("#error").html("Frequency is invalid");
 		$("#error").show();
@@ -64,6 +60,7 @@ $("#submit").on("click",function(event) {
 
 	$("#error").hide();
 
+	// Pushes Train into the database
 	database.ref().push({
 		name: $("#trainName").val().trim(),
 		destination: $("#destination").val().trim(),
@@ -95,6 +92,7 @@ database.ref().on("child_added", function(childSnapshot) {
 		minAway = "Now";
 	}
 
+	// append new row
 	var newTableRow = $("<tr>");
 	newTableRow.append($("<td>").html(childSnapshot.val().name))
 		.append($("<td>").html(childSnapshot.val().destination))
@@ -103,6 +101,8 @@ database.ref().on("child_added", function(childSnapshot) {
 		.append($("<td>").html(minAway));
 	$("#trainTable").append(newTableRow);
 
+}, function(errorObject) {
+	console.log("There was an error: " + errorObject.code);
 });
 
 // Calculates the minutes away from the next train
