@@ -73,10 +73,15 @@ $("#submit").on("click",function(event) {
 
 	$("#trainName").val("");  
 	$("#destination").val("");  
-	$("#firstTrainHours").val("");  
 	$("#firstTrainMinutes").val("");  
+	$("#firstTrainHours").val("");  
 	$("#frequency").val(""); 
 
+});
+
+$("#update").on("click",function(event) {
+	event.preventDefault();
+	updateTimes();
 });
 
 // Displays all the trains in the train array
@@ -88,12 +93,12 @@ database.ref().on("child_added", function(childSnapshot) {
 
 	var nextArivl = arrivalTime(minAway);
 
-	if (minAway === 0) {
+	if (minAway === childSnapshot.val().frequency || minAway === 0) {
 		minAway = "Now";
 	}
 
 	// append new row
-	var newTableRow = $("<tr>");
+	var newTableRow = $("<tr>").attr("id",childSnapshot.key);
 	newTableRow.append($("<td>").html(childSnapshot.val().name))
 		.append($("<td>").html(childSnapshot.val().destination))
 		.append($("<td>").html(childSnapshot.val().frequency))
@@ -128,4 +133,39 @@ function arrivalTime(min) {
 	var minDisplay = currentMin + min;
 
 	return moment().add(min,"minutes").format("hh:mm A");
+}
+
+// database.ref().forEach(updateTimes);
+
+// console.log(database.ref());
+
+function updateTimes() {
+	database.ref().once("value").then(function(snap) {
+		// console.log(snap.val());
+		var trainsObj = snap.val();
+
+		for (var key in trainsObj) {
+			console.log(trainsObj[key]);
+			var minAway = minutesAway(trainsObj[key].firstTrain.hours,
+				trainsObj[key].firstTrain.minutes,
+				trainsObj[key].frequency);
+
+			var nextArivl = arrivalTime(minAway);
+
+			if (minAway === trainsObj[key].frequency || minAway === 0) {
+				minAway = "Now";
+			}
+
+			var $x = $("#" + key).children()[3];
+			$($x).html(nextArivl);
+
+			var $y = $("#" + key).children()[4];
+			$($y).html(minAway);
+
+			// console.log($("#" + key).children()[3]);
+
+			// $("#" + key).children()[3].html("test");
+			// $("#" + key).children()[4].html("test");
+		} 
+	});
 }
