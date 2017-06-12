@@ -41,8 +41,7 @@ $("#submit").on("click",function(event) {
 	var firstTrainMin = parseInt($("#firstTrainMinutes").val().trim());
 	var trainFreq = parseInt($("#frequency").val().trim());
 
-	var startTimeString = firstTrainHr + ":" 
-	+ firstTrainMin;
+	var startTimeString = firstTrainHr + ":" + firstTrainMin;
 
 	// Time validation
 	if (moment(startTimeString,"HH:mm").isValid() === false) {
@@ -59,6 +58,7 @@ $("#submit").on("click",function(event) {
 	}
 
 	$("#error").hide();
+	updateTimes();
 
 	// Pushes Train into the database
 	database.ref().push({
@@ -79,6 +79,7 @@ $("#submit").on("click",function(event) {
 
 });
 
+// Updates the time when the update button has been clicked
 $("#update").on("click",function(event) {
 	event.preventDefault();
 	updateTimes();
@@ -124,7 +125,7 @@ function minutesAway(hr,min,freq) {
 
 	var remainder = diff%freq;
 
-	return (freq - remainder);
+	return (freq - remainder)%freq;
 }
 
 // Displays the arival time of the train based on the min away from the current time
@@ -135,17 +136,12 @@ function arrivalTime(min) {
 	return moment().add(min,"minutes").format("hh:mm A");
 }
 
-// database.ref().forEach(updateTimes);
-
-// console.log(database.ref());
-
+// Updates the times
 function updateTimes() {
 	database.ref().once("value").then(function(snap) {
-		// console.log(snap.val());
 		var trainsObj = snap.val();
 
 		for (var key in trainsObj) {
-			console.log(trainsObj[key]);
 			var minAway = minutesAway(trainsObj[key].firstTrain.hours,
 				trainsObj[key].firstTrain.minutes,
 				trainsObj[key].frequency);
@@ -156,16 +152,11 @@ function updateTimes() {
 				minAway = "Now";
 			}
 
-			var $x = $("#" + key).children()[3];
-			$($x).html(nextArivl);
+			var nextArivlData = $("#" + key).children()[3];
+			$(nextArivlData).html(nextArivl);
 
-			var $y = $("#" + key).children()[4];
-			$($y).html(minAway);
-
-			// console.log($("#" + key).children()[3]);
-
-			// $("#" + key).children()[3].html("test");
-			// $("#" + key).children()[4].html("test");
+			var minAwayData = $("#" + key).children()[4];
+			$(minAwayData).html(minAway);
 		} 
 	});
 }
